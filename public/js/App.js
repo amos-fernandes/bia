@@ -269,7 +269,7 @@ class App extends React.Component {
 
       setTimeout(function () {
         self.connectWebSocket();
-      }, 1000);
+      }, 1000000);
     };
   }
 
