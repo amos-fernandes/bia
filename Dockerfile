@@ -26,6 +26,9 @@ ARG NODE_ENV=development
 ENV NODE_ENV=${NODE_ENV}
 LABEL com.chrisleekr.binance-trading-bot.node-env=${NODE_ENV}
 
+ARG PORT=80
+ENV PORT=${PORT}
+
 ENTRYPOINT [ "docker-entrypoint.sh" ]
 
 CMD [ "npm", "run", "dev" ]
@@ -57,6 +60,9 @@ LABEL com.chrisleekr.binance-trading-bot.git-hash=${GIT_HASH}
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 LABEL com.chrisleekr.binance-trading-bot.node-env=${NODE_ENV}
+
+ARG PORT=80
+ENV PORT=${PORT}
 
 # Add configuration files
 COPY image-files/ /
