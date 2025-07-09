@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv() # Carrega variáveis de um arquivo .env
 
 # --- Configuração da API ATCoin ---
-ATCOIN_API_URL = os.environ.get("ATCOIN_API_URL", "https://huggingface.co/spaces/amos-fernandes/cripto-model:8000") # Mude para a URL do seu HF Space
+ATCOIN_API_URL = os.environ.get("ATCOIN_API_URL", "https://huggingface.co/spaces/amos-fernandes/cripto-model/api/v1/predict") # Mude para a URL do seu HF Space
 ATCOIN_API_KEY = os.environ.get("ATCOIN_API_KEY", "default_secret_key_for_bia")
 
 # --- Configuração da API Binance ---

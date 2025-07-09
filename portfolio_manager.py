@@ -1,5 +1,6 @@
 # bia/portfolio_manager.py
 import time
+from datetime import datetime
 from typing import Dict
 
 from config import PORTFOLIO_ASSETS, QUOTE_ASSET, YFINANCE_TO_BINANCE_MAP, MIN_ORDER_VALUE_USD
