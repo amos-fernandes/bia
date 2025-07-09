@@ -1,394 +1,487 @@
-# Binance Trading Bot
-
-[![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner2-direct.svg)](https://war.ukraine.ua)
+# COMIDA
 
 
-[![GitHub version](https://img.shields.io/github/package-json/v/chrisleekr/binance-trading-bot)](https://github.com/chrisleekr/binance-trading-bot/releases)
-[![Build](https://github.com/chrisleekr/binance-trading-bot/workflows/Push/badge.svg)](https://github.com/chrisleekr/binance-trading-bot/actions?query=workflow%3APush)
-[![CodeCov](https://codecov.io/gh/chrisleekr/binance-trading-bot/branch/master/graph/badge.svg)](https://codecov.io/gh/chrisleekr/binance-trading-bot)
-[![Docker pull](https://img.shields.io/docker/pulls/chrisleekr/binance-trading-bot)](https://hub.docker.com/r/chrisleekr/binance-trading-bot)
-[![GitHub contributors](https://img.shields.io/github/contributors/chrisleekr/binance-trading-bot)](https://github.com/chrisleekr/binance-trading-bot/graphs/contributors)
-[![MIT License](https://img.shields.io/github/license/chrisleekr/binance-trading-bot)](https://github.com/chrisleekr/binance-trading-bot/blob/master/LICENSE)
 
-> Automated Binance trading bot with trailing buy/sell strategy
+
+>Bot Inteligence Artifical com estratégia de compra/venda à direita
+
 
 ---
 
-[![ko](https://img.shields.io/badge/lang-한국어-brightgreen.svg)](https://github.com/chrisleekr/binance-trading-bot/blob/master/README.ko.md)
-[![中文](https://img.shields.io/badge/lang-中文-blue.svg)](https://github.com/chrisleekr/binance-trading-bot/blob/master/README.zh-cn.md)
 
-This is a test project. I am just testing my code.
+**Antes de atualizar o bot, certifique-se de registrar o último preço de compra na nota. Ele pode perder a configuração ou os registros do último preço de compra.**
 
-## Warnings
 
-**I cannot guarantee whether you can make money or not.**
+## Como funciona
 
-**So use it at your own risk! I have no responsibility for any loss or hardship
-incurred directly or indirectly by using this code. Read
-[disclaimer](#disclaimer) before using this code.**
 
-**Before updating the bot, make sure to record the last buy price in the note. It may lose the configuration or last buy price records.**
+### Bot de compra/venda de negociação em grade de rastreamento
 
-## How it works
 
-### Trailing Grid Trade Buy/Sell Bot
+Este bot usa o conceito de ordem de compra/venda que permite acompanhar a queda/alta do preço.
 
-This bot is using the concept of trailing buy/sell order which allows following the price fall/rise.
 
-> Trailing Stop Orders
-> About Trailing Stop Orders Concept you can find at [Binance Official document](https://www.binance.com/en/support/faq/360042299292)
+>Ordens de Trailing Stop
+>Sobre o conceito de Trailing Stop Orders você pode encontrar em [Documento oficial da Binance](https://www.binance.com/en/support/faq/360042299292)
 >
-> TL;DR
-> Place orders at a fixed value or percentage when the price changes. Using this feature you can buy at the lowest possible price when buying down and sell at the highest possible price when selling up.
+>Resumo
+>Coloque ordens com um valor fixo ou percentual quando o preço mudar. Usando este recurso, você pode comprar pelo menor preço possível ao comprar na baixa e vender pelo maior preço possível ao vender na alta.
 
-- The bot supports multiple buy/sell orders based on the configuration.
-- The bot can monitor multiple symbols. All symbols will be monitored per second.
-- The bot is using MongoDB to provide a persistence database. However, it does not use the latest MongoDB to support Raspberry Pi 32bit. Used MongoDB version
-  is 3.2.20, which is provided by [apcheamitru](https://hub.docker.com/r/apcheamitru/arm32v7-mongo).
-- The bot is tested/working with Linux and Raspberry Pi 4 32bit. Other platforms are not tested.
 
-#### Buy Signal
+-O bot suporta múltiplas ordens de compra/venda com base na configuração.
+-O bot pode monitorar vários símbolos. Todos os símbolos serão monitorados por segundo.
+-O bot usa o MongoDB para fornecer um banco de dados persistente. No entanto, ele não usa a versão mais recente do MongoDB para suportar o Raspberry Pi de 32 bits. Utilizou a versão do MongoDB.
+é 3.2.20, que é fornecido por [apcheamitr](https://hub.docker.com/r/apcheamitru/arm32v7-mongo).
+-O bot foi testado e funciona com Linux e Raspberry Pi 4 de 32 bits. Outras plataformas não foram testadas.
 
-The bot will continuously monitor the coin based on the grid trade configuration.
 
-For grid trade #1, the bot will place a STOP-LOSS-LIMIT order to buy when the current price reaches the lowest price. If the current price continuously falls, then the bot will cancel the previous order and re-place the new STOP-LOSS-LIMIT order with the new price.
+#### Sinal de compra
 
-After grid trade #1, the bot will monitor the COIN based on the last buy price.
 
-- The bot will not place a buy order of the grid trade #1 if has enough coin (typically over $10 worth) to sell when reaches the trigger price for selling.
-- The bot will remove the last buy price if the estimated value is less than the last buy price removal threshold.
+O bot monitorará continuamente a moeda com base na configuração de negociação da grade.
 
-##### Buy Scenario
 
-Let say, if the buy grid trade configurations are set as below:
+Para a negociação de grade nº 1, o bot lançará uma ordem STOP-LOSS-LIMIT para comprar quando o preço atual atingir o menor preço. Se o preço atual cair continuamente, o bot cancelará a ordem anterior e substituirá a nova ordem STOP-LOSS-LIMIT com o novo preço.
 
-- Number of grids: 2
-- Grids
-  | No# | Trigger Percentage  | Stop Price Percentage | Limit price percentage | USDT |
-  | --- | ------------------- | --------------------- | ---------------------- | ---- |
-  | 1   | 1                   | 1.05                  | 1.051                  | 50   |
-  | 2   | 0.8                 | 1.03                  | 1.031                  | 100  |
 
-To make it easier to understand, I will use `$` as a USDT symbol. For the simple calculation, I do not take an account for the commission. In real trading, the quantity may be different.
+Após a negociação na grade nº 1, o bot monitorará a COIN com base no último preço de compra.
 
-Your 1st grid trading for buying is configured as below:
 
-- Grid No#: 1
-- Trigger percentage: 1
-- Stop percentage: 1.05 (5.00%)
-- Limit percentage: 1.051 (5.10%)
-- Max purchase amount: $50
+-O bot não colocará uma ordem de compra da negociação de grade nº 1 se tiver moedas suficientes (normalmente mais de US$ 10) para vender quando atingir o preço de gatilho para venda.
+-O bot removerá o último preço de compra se o valor estimado for menor que o limite de remoção do último preço de compra.
 
-And the market is as below:
 
-- Current price: $105
-- Lowest price: $100
-- Trigger price: $100
+##### Cenário de compra
 
-When the current price is falling to the lowest price ($100) and lower than ATH(All-Time High) restricted price if enabled, the bot will place new STOP-LOSS-LIMIT order for buying.
 
-- Stop price: $100 * 1.05 = $105
-- Limit price: $100 * 1.051 = $105.1
-- Quantity: 0.47573
+Digamos que as configurações de negociação da grade de compra estejam definidas conforme abaixo:
 
-Let's assume the market changes as below:
 
-- Current price: $95
+-Número de grades: 2
+-Grades
+| Nº | Porcentagem de gatilho | Porcentagem de preço de parada | Porcentagem de preço limite | USDT |
+| --- | ------------------- | --------------------- | ---------------------- | ---- |
+| 1 | 1 | 1,05 | 1,051 | 50 |
+| 2 | 0,8 | 1,03 | 1,031 | 100 |
 
-Then the bot will follow the price fall and place new STOP-LOSS-LIMIT order as below:
 
-- Stop price: $95 * 1.05 = $99.75
-- Limit price: $95 * 1.051 = $99.845
-- Quantity: 0.5
+Para facilitar a compreensão, usarei`$`como um símbolo USDT. Para simplificar o cálculo, não levo em conta a comissão. Em negociações reais, a quantidade pode ser diferente.
 
-Let's assume the market changes as below:
 
-- Current price: $100
+Sua 1ª negociação em grade para compra está configurada conforme abaixo:
 
-Then the bot will execute 1st purchase for the coin. The last buy price will be recorded as `$99.845`. The purchased quantity will be `0.5`.
 
-Once the coin is purchased, the bot will start monitoring the sell signal and at the same time, monitor the next grid trading for buying.
+-Grade nº: 1
+-Porcentagem de gatilho: 1
+-Porcentagem de parada: 1,05 (5,00%)
+-Porcentagem limite: 1.051 (5,10%)
+-Valor máximo de compra: $ 50
 
-Your 2nd grid trading for buying is configured as below:
 
-- Grid#: 2
-- Current last buy price: $99.845
-- Trigger percentage: 0.8 (20%)
-- Stop percentage: 1.03 (3.00%)
-- Limit percentage: 1.031 (3.10%)
-- Max purchase amount: $100
+E o mercado está assim:
 
-And if the current price is continuously falling to `$79.876` (20% lower), then the bot will place new STOP-LOSS-LIMIT order for the 2nd grid trading for the coin.
 
-Let's assume the market changes as below:
+-Preço atual: $ 105
+-Preço mais baixo: US$ 100
+-Preço de gatilho: US$ 100
 
-- Current price: $75
 
-Then the bot will follow the price fall and place new STOP-LOSS-LIMT order as below:
+Quando o preço atual estiver caindo para o preço mais baixo (US$ 100) e abaixo do preço restrito ATH (máximo histórico), se habilitado, o bot colocará uma nova ordem STOP-LOSS-LIMIT para compra.
 
-- Stop price: $75 * 1.03 = $77.25
-- Limit price: $75 * 1.031 = $77.325
-- Quantity: 1.29
 
-Let's assume the market changes as below:
+-Preço de parada: $ 100 * 1,05 = $ 105
+-Preço limite: $ 100 * 1,051 = $ 105,1
+-Quantidade: 0,47573
 
-- Current price: $78
 
-Then the bot will execute 2nd purchase for the coin. The last buy price will be automatically re-calculated as below:
+Vamos supor que o mercado mude conforme abaixo:
 
-- Final last buy price: ($50 + $100)/(0.5 COIN + 1.29 COIN) = $83.80
 
-##### In-depth Buy Configuration in-depth
+-Preço atual: $ 95
 
-The detailed document for buy configuration available here.
 
-[https://github.com/chrisleekr/binance-trading-bot/wiki/Buy-Scenario](https://github.com/chrisleekr/binance-trading-bot/wiki/Buy-Scenario)
+Em seguida, o bot acompanhará a queda do preço e colocará uma nova ordem STOP-LOSS-LIMIT conforme abaixo:
 
-### Sell Signal
 
-If there is enough balance for selling and the last buy price is recorded in the bot, then the bot will start monitoring the sell signal of the grid trade #1. Once the current price reaches the trigger price of the grid trade #1, then the bot will place a STOP-LOSS-LIMIT order to sell. If the current price continuously rises, then the bot will cancel the previous order and re-place the new STOP-LOSS-LIMIT order with the new price.
+-Preço de parada: $ 95 * 1,05 = $ 99,75
+-Preço limite: $ 95 * 1,051 = $ 99,845
+-Quantidade: 0,5
 
-- If the bot does not have a record for the last buy price, the bot will not sell the coin.
-- If the coin is worth less than the last buy price removal threshold, then the bot will remove the last buy price.
-- If the coin is not worth than the minimum notional value, then the bot will not place an order.
 
-#### Sell Scenario
+Vamos supor que o mercado mude conforme abaixo:
 
-Let say, if the sell grid trade configurations are set as below:
 
-- Number of grids: 2
-- Grids
-  | No# | Trigger Percentage  | Stop Price Percentage | Limit price percentage | Sell Quantity Percentage |
-  | --- | ------------------- | --------------------- | ---------------------- |------------------------- |
-  | 1st | 1.05                | 0.97                  | 0.969                  | 0.5                      |
-  | 2nd | 1.08                | 0.95                  | 0.949                  | 1                        |
+-Preço atual: US$ 100
 
-Unlike buy, the sell configuration will use the percentage of a quantity. If you want to sell all of your coin quantity, then simply configure it as `1` (100%).
 
-From the last buy actions, you now have the following balances:
+Em seguida, o bot executará a primeira compra da moeda. O último preço de compra será registrado como`$ 99.845`. A quantidade comprada será`0,5`.
 
-- Current quantity: 1.79
-- Current last buy price: $83.80
 
-Your 1st grid trading for selling is configured as below:
+Após a compra da moeda, o bot começará a monitorar o sinal de venda e, ao mesmo tempo, monitorará a próxima grade de negociação para compra.
 
-- Grid No# 1
-- Trigger percentage: 1.05
-- Stop price percentage: 0.97
-- Limit price percentage: 0.969
-- Sell amount percentage: 0.5
 
-Let's assume the market changes as below:
+Sua segunda grade de negociação para compra está configurada conforme abaixo:
 
-- Current price: $88
 
-As the current price is higher than the sell trigger price($87.99), then the bot will place new STOP-LOSS-LIMIT order for selling.
+-Grade nº: 2
+-Último preço de compra atual: $ 99,845
+-Porcentagem de gatilho: 0,8 (20%)
+-Porcentagem de parada: 1,03 (3,00%)
+-Porcentagem limite: 1.031 (3,10%)
+-Valor máximo de compra: $ 100
 
-- Stop price: $88 * 0.97 = $85.36
-- Limit price: $88 * 0.969 = $85.272
-- Quantity: 0.895
 
-Let's assume the market changes as below:
+E se o preço atual estiver caindo continuamente para`$ 79.876`(20% menor), então o bot colocará uma nova ordem STOP-LOSS-LIMIT para a 2ª grade de negociação da moeda.
 
-- Current price: $90
 
-Then the bot will follow the price rise and place new STOP-LOSS-LIMIT order as below:
+Vamos supor que o mercado mude conforme abaixo:
 
-- Stop price: $90 * 0.97 = $87.30
-- Limit price: $90 * 0.969 = $87.21
-- Quantity: 0.895
 
-Let's assume the market changes as below:
+-Preço atual: $ 75
 
-- Current price: $87
 
-Then the bot will execute 1st sell for the coin. Then the bot will now wait for 2nd selling trigger price ($83.80 * 1.08 = $90.504).
+Então o bot acompanhará a queda do preço e colocará uma nova ordem STOP-LOSS-LIMT conforme abaixo:
 
-- Current quantity: 0.895
-- Current last buy price: $83.80
 
-Let's assume the market changes as below:
+-Preço de parada: $ 75 * 1,03 = $ 77,25
+-Preço limite: $ 75 * 1,031 = $ 77,325
+-Quantidade: 1,29
 
-- Current price: $91
 
-Then the current price($91) is higher than 2nd selling trigger price ($90.504), the bot will place new STOP-LOSS-LIMIT order as below:
+Vamos supor que o mercado mude conforme abaixo:
 
-- Stop price: $91 * 0.95 = $86.45
-- Limit price: $91 * 0.949 = $86.359
-- Quantity: 0.895
 
-Let's assume the market changes as below:
+-Preço atual: $ 78
 
-- Current price: $100
 
-Then the bot will follow the price rise and place new STOP-LOSS-LIMT order as below:
+Em seguida, o bot executará a segunda compra da moeda. O último preço de compra será recalculado automaticamente conforme abaixo:
 
-- Stop price: $100 * 0.95 = $95
-- Limit price: $100 * 0.949 = $94.9
-- Quantity: 0.895
 
-Let's assume the market changes as below:
+-Preço final de compra: ($ 50 + $ 100) / (0,5 COIN + 1,29 COIN) = $ 83,80
 
-- Current price: $94
 
-Then the bot will execute 2nd sell for the coin.
 
-The final profit would be
+### Sinal de venda
 
-- 1st sell: $94.9 * 0.895 = $84.9355
-- 2nd sell: $87.21 * 0.895 = $78.05295
-- Final profit: $162 (8% profit)
 
-##### In-depth Sell Configuration
+Se houver saldo suficiente para vender e o último preço de compra estiver registrado no bot, o bot começará a monitorar o sinal de venda da operação de grid nº 1. Assim que o preço atual atingir o preço de gatilho da operação de grid nº 1, o bot lançará uma ordem STOP-LOSS-LIMIT para vender. Se o preço atual subir continuamente, o bot cancelará a ordem anterior e substituirá a nova ordem STOP-LOSS-LIMIT com o novo preço.
 
-The detailed document for buy configuration available here.
 
-[https://github.com/chrisleekr/binance-trading-bot/wiki/Sell-Scenario](https://github.com/chrisleekr/binance-trading-bot/wiki/Sell-Scenario)
+-Se o bot não tiver um registro do último preço de compra, o bot não venderá a moeda.
+-Se a moeda valer menos que o último limite de remoção do preço de compra, o bot removerá o último preço de compra.
+-Se a moeda não valer mais que o valor nominal mínimo, o bot não fará um pedido.
 
-### [Features](https://github.com/chrisleekr/binance-trading-bot/wiki/Features)
 
-- Manual trade
-- Convert small balances to BNB
-- Trade all symbols
-- Monitoring multiple coins simultaneously
-- Stop-Loss
-- Restrict buying with ATH price
-- Grid Trade for buy/sell
-- Integrated with TradingView Technical Analysis
+#### Cenário de Venda
+
+
+Digamos que as configurações de negociação da grade de vendas estejam definidas conforme abaixo:
+
+
+-Número de grades: 2
+-Grades
+| Nº | Porcentagem de gatilho | Porcentagem de preço de parada | Porcentagem de preço limite | Porcentagem de quantidade de venda |
+| --- | ------------------- | --------------------- | ---------------------- |------------------------- |
+| 1º | 1,05 | 0,97 | 0,969 | 0,5 |
+| 2º | 1.08 | 0,95 | 0,949 | 1 |
+
+
+Ao contrário da compra, a configuração de venda usará a porcentagem de uma quantidade. Se você quiser vender toda a sua quantidade de moedas, basta configurá-la como`1`(100%).
+
+
+Das últimas ações de compra, você agora tem os seguintes saldos:
+
+
+-Quantidade atual: 1,79
+-Último preço de compra atual: $ 83,80
+
+
+Sua 1ª grade de negociação para venda está configurada conforme abaixo:
+
+
+-Grade nº 1
+-Porcentagem de gatilho: 1,05
+-Porcentagem de preço de parada: 0,97
+-Porcentagem de preço limite: 0,969
+-Porcentagem do valor de venda: 0,5
+
+
+Vamos supor que o mercado mude conforme abaixo:
+
+
+-Preço atual: $ 88
+
+
+Como o preço atual é maior que o preço de venda (US$ 87,99), o bot colocará uma nova ordem STOP-LOSS-LIMIT para venda.
+
+
+-Preço de parada: $ 88 * 0,97 = $ 85,36
+-Preço limite: $ 88 * 0,969 = $ 85,272
+-Quantidade: 0,895
+
+
+Vamos supor que o mercado mude conforme abaixo:
+
+
+-Preço atual: $ 90
+
+
+Em seguida, o bot acompanhará o aumento do preço e colocará uma nova ordem STOP-LOSS-LIMIT conforme abaixo:
+
+
+-Preço de parada: $ 90 * 0,97 = $ 87,30
+-Preço limite: $ 90 * 0,969 = $ 87,21
+-Quantidade: 0,895
+
+
+Vamos supor que o mercado mude conforme abaixo:
+
+
+-Preço atual: $ 87
+
+
+Em seguida, o bot executará a primeira venda da moeda. Em seguida, aguardará o preço de gatilho da segunda venda (US$ 83,80 * 1,08 = US$ 90,504).
+
+
+-Quantidade atual: 0,895
+-Último preço de compra atual: $ 83,80
+
+
+Vamos supor que o mercado mude conforme abaixo:
+
+
+-Preço atual: $ 91
+
+
+Então o preço atual ($91) é maior que o segundo preço de gatilho de venda ($90.504), o bot colocará uma nova ordem STOP-LOSS-LIMIT conforme abaixo:
+
+
+-Preço de parada: $ 91 * 0,95 = $ 86,45
+-Preço limite: $ 91 * 0,949 = $ 86,359
+-Quantidade: 0,895
+
+
+Vamos supor que o mercado mude conforme abaixo:
+
+
+-Preço atual: US$ 100
+
+
+Em seguida, o bot acompanhará o aumento do preço e colocará uma nova ordem STOP-LOSS-LIMT conforme abaixo:
+
+
+-Preço de parada: $ 100 * 0,95 = $ 95
+-Preço limite: $ 100 * 0,949 = $ 94,9
+-Quantidade: 0,895
+
+
+Vamos supor que o mercado mude conforme abaixo:
+
+
+-Preço atual: $ 94
+
+
+Então o bot executará a segunda venda da moeda.
+
+
+O lucro final seria
+
+
+-1ª venda: $ 94,9 * 0,895 = $ 84,9355
+-2ª venda: $ 87,21 * 0,895 = $ 78,05295
+-Lucro final: $ 162 (lucro de 8%)
+
+
+
+-Comércio manual
+-Converter pequenos saldos em BNB
+-Negocie todos os símbolos
+-Monitoramento de múltiplas moedas simultaneamente
+-Stop-Loss
+-Restringir a compra com preço ATH
+-Grid Trade para compra/venda
+-Integrado com a Análise Técnica do TradingView
+
 
 ### Frontend + WebSocket
 
-React.js based frontend communicating via Web Socket:
 
-- List monitoring coins with buy/sell signals/open orders
-- View account balances
-- View open/closed trades
-- Manage global/symbol settings
-- Delete caches that are not monitored
-- Link to public URL
-- Support Add to Home Screen
-- Secure frontend
+Frontend baseado em React.js se comunicando via Web Socket:
 
-## Environment Parameters
 
-Use environment parameters to adjust parameters. Check `/config/custom-environment-variables.json` to see list of available environment parameters.
+-Listar moedas de monitoramento com sinais de compra/venda/ordens abertas
+-Ver saldos de contas
+-Ver negociações abertas/fechadas
+-Gerenciar configurações globais/de símbolos
+-Excluir caches que não são monitorados
+-Link para URL pública
+-Suporte Adicionar à tela inicial
+-Frontend seguro
 
-Or use the frontend to adjust configurations after launching the application.
 
-## How to use
+## Parâmetros de ambiente
 
-1. Create `.env` file based on `.env.dist`.
 
-   | Environment Key                | Description                                                               | Sample Value                                                                                        |
-   | ------------------------------ | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-   | BINANCE_LIVE_API_KEY           | Binance API key for live                                                  | (from [Binance](https://binance.zendesk.com/hc/en-us/articles/360002502072-How-to-create-API))      |
-   | BINANCE_LIVE_SECRET_KEY        | Binance API secret for live                                               | (from [Binance](https://binance.zendesk.com/hc/en-us/articles/360002502072-How-to-create-API))      |
-   | BINANCE_TEST_API_KEY           | Binance API key for test                                                  | (from [Binance Spot Test Network](https://testnet.binance.vision/))                                 |
-   | BINANCE_TEST_SECRET_KEY        | Binance API secret for test                                               | (from [Binance Spot Test Network](https://testnet.binance.vision/))                                 |
-   | BINANCE_SLACK_ENABLED          | Slack enable/disable                                                      | true                                                                                                |
-   | BINANCE_SLACK_WEBHOOK_URL      | Slack webhook URL                                                         | (from [Slack](https://slack.com/intl/en-au/help/articles/115005265063-Incoming-webhooks-for-Slack)) |
-   | BINANCE_SLACK_CHANNEL          | Slack channel                                                             | "#binance"                                                                                          |
-   | BINANCE_SLACK_USERNAME         | Slack username                                                            | Chris                                                                                               |
-   | BINANCE_LOCAL_TUNNEL_ENABLED   | Enable/Disable [local tunnel](https://github.com/localtunnel/localtunnel) | true                                                                                                |
-   | BINANCE_LOCAL_TUNNEL_SUBDOMAIN | Local tunnel public URL subdomain                                         | binance                                                                                             |
-   | BINANCE_AUTHENTICATION_ENABLED | Enable/Disable frontend authentication                                    | true  |
-   | BINANCE_AUTHENTICATION_PASSWORD | Frontend password                                                        | 123456 |
-   | BINANCE_LOG_LEVEL               | Logging level. [Possible values described on `bunyan` docs.](https://www.npmjs.com/package/bunyan#levels) | ERROR |
+Use os parâmetros do ambiente para ajustar os parâmetros. Verifique`/config/custom-environment-variables.json`para ver a lista de parâmetros de ambiente disponíveis.
 
-   *A local tunnel makes the bot accessible from the outside. Please set the subdomain of the local tunnel as a subdomain that only you can remember.*
-   *You must change the authentication password; otherwise, it will be configured as the default password.*
 
-2. Launch/Update the bot with docker-compose
+Ou use o frontend para ajustar as configurações após iniciar o aplicativo.
 
-   Pull latest code first:
 
-   ```bash
-   git pull
-   ```
+## Como usar
 
-   If want production/live mode, then use the latest build image from DockerHub:
 
-   ```bash
-   docker-compose -f docker-compose.server.yml pull
-   docker-compose -f docker-compose.server.yml up -d
-   ```
+1. Criar `.env`arquivo baseado em`.env.dist`.
 
-   Or if want development/test mode, then run below commands:
 
-   ```bash
-   docker-compose up -d --build
-   ```
+| Chave do ambiente | Descrição | Valor da amostra |
+| ------------------------------ | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| BINANCE_LIVE_API_KEY | Chave da API da Binance para live | (de [Binance](https://binance.zendesk.com/hc/en-us/articles/360002502072-Como-criar-API)) |
+| BINANCE_LIVE_SECRET_KEY | Segredo da API da Binance para live | (de [Binance](https://binance.zendesk.com/hc/en-us/articles/360002502072-Como-criar-API)) |
+| BINANCE_TEST_API_KEY | Chave da API da Binance para teste | (de [Rede de Teste Binance Spot](https://testnet.binance.vision/)) |
+| BINANCE_TEST_SECRET_KEY | Segredo da API Binance para teste | (de [Rede de Teste Binance Spot](https://testnet.binance.vision/)) |
+| BINANCE_SLACK_ENABLED | Habilitar/desabilitar Slack | verdadeiro |
+| BINANCE_SLACK_WEBHOOK_URL | URL do webhook do Slack | (de [Folga](https://slack.com/intl/en-au/help/articles/115005265063-Webhooks-de-entrada-para-Slack)) |
+| BINANCE_SLACK_CHANNEL | Canal do Slack | "#binance" |
+| BINANCE_SLACK_USERNAME | Nome de usuário do Slack | Amos |
+| BINANCE_LOCAL_TUNNEL_ENABLED | Habilitar/Desabilitar [túnel local](https://github.com/localtunnel/localtunnel) | verdadeiro |
+| BINANCE_LOCAL_TUNNEL_SUBDOMAIN | Subdomínio de URL pública do túnel local | binance |
+| BINANCE_AUTHENTICATION_ENABLED | Habilitar/Desabilitar autenticação de frontend | true |
+| BINANCE_AUTHENTICATION_PASSWORD | Senha do frontend | 123456 |
+| BINANCE_LOG_LEVEL | Nível de registro. [Valores possíveis descritos na documentação `bunyan`.](https://www.npmjs.com/package/bunyan#levels) | ERRO |
 
-3. Open browser `http://0.0.0.0:8080` to see the frontend
 
-   - When launching the application, it will notify public URL to the Slack.
-   - If you have any issue with the bot, you can check the log to find out what happened with the bot. Please take a look [Troubleshooting](https://github.com/chrisleekr/binance-trading-bot/wiki/Troubleshooting)
+  *Um túnel local torna o bot acessível de fora. Defina o subdomínio do túnel local como um subdomínio que só você consiga lembrar.*
+  *Você deve alterar a senha de autenticação; caso contrário, ela será configurada como a senha padrão.*
 
-### Install via Stackfile
 
-1. In [Portainer](https://www.portainer.io/) create new Stack
+2.Inicie/atualize o bot com docker-compose
 
-2. Copy content of `docker-stack.yml` or upload the file
 
-3. Set environment keys for `binance-bot` in the `docker-stack.yml`
+Puxe o código mais recente primeiro:
 
-4. Launch and open browser `http://0.0.0.0:8080` to see the frontend
 
-## Screenshots
+```bash
+  git pull
+```
 
-| Password Protected | Frontend Mobile |
+
+Se quiser o modo de produção/ao vivo, use a imagem de compilação mais recente do DockerHub:
+
+
+```bash
+  docker-compose -f docker-compose.server.yml puxar
+  docker-compose -f docker-compose.server.yml up -d
+```
+
+
+Ou se quiser o modo de desenvolvimento/teste, execute os comandos abaixo:
+
+
+```bash
+  docker-compose up -d --build
+```
+
+
+3.Abra o navegador`http://0.0.0.0:8080`para ver o frontend
+
+
+  -Ao iniciar o aplicativo, ele notificará a URL pública para o Slack.
+  -Se tiver algum problema com o bot, você pode verificar o log para descobrir o que aconteceu com ele. Dê uma olhada em [Solução de problemas](https://github.com/chrisleekr/binance-trading-bot/wiki/Solução de problemas)
+
+
+### Instalar via Stackfile
+
+
+1. Em [Portainer](https://www.portainer.io/) criar nova pilha
+
+
+2.Copiar conteúdo de`docker-stack.yml`ou carregue o arquivo
+
+
+3.Definir chaves de ambiente para`binance-bot` no `docker-stack.yml`
+
+
+4.Inicie e abra o navegador`http://0.0.0.0:8080`para ver o frontend
+
+
+## Capturas de tela
+
+
+| Protegido por senha | Frontend Mobile |
 | ------------------ | --------------- |
-| ![Password Protected](https://user-images.githubusercontent.com/5715919/133920104-49d1b590-c2ba-46d7-a294-eb6b24b459f5.png) | ![Frontend Mobile](https://user-images.githubusercontent.com/5715919/137472107-4059fcdf-5174-4282-81af-80cea5b269a0.png) |
+| ![Protegido por senha](https://user-images.githubusercontent.com/5715919/133920104-49d1b590-c2ba-46d7-a294-eb6b24b459f5.png) | ![Frontend Mobile](https://user-images.githubusercontent.com/5715919/137472107-4059fcdf-5174-4282-81af-80cea5b269a0.png) |
 
-| Setting | Manual Trade |
+
+| Configuração | Negociação manual |
 | ------- | ------------ |
-| ![Setting](https://user-images.githubusercontent.com/5715919/127318581-4e422ac9-b145-4e83-a90d-5c05c61d6e2f.png) | ![Manual Trade](https://user-images.githubusercontent.com/5715919/127318630-f2180e1b-3feb-48fa-a083-4cb7f90f743f.png) |
+| ![Contexto](https://user-images.githubusercontent.com/5715919/127318581-4e422ac9-b145-4e83-a90d-5c05c61d6e2f.png) | ![Comércio manual](https://user-images.githubusercontent.com/5715919/127318630-f2180e1b-3feb-48fa-a083-4cb7f90f743f.png) |
 
-| Frontend Desktop  | Closed Trades |
+
+| Frontend Desktop | Negócios Fechados |
 | ----------------- | ------------- |
-| ![Frontend Desktop](https://user-images.githubusercontent.com/5715919/137472148-7be1e19b-3ce5-4d5a-aa28-18c55b3b48aa.png) | ![Closed Trades](https://user-images.githubusercontent.com/5715919/137472190-a4c6ef0f-3399-44bb-852f-eedb7c67d629.png) |
+| ![Área de trabalho front-end](https://user-images.githubusercontent.com/5715919/137472148-7be1e19b-3ce5-4d5a-aa28-18c55b3b48aa.png) | ![Negociações Fechadas](https://user-images.githubusercontent.com/5715919/137472190-a4c6ef0f-3399-44bb-852f-eedb7c67d629.png) |
 
-### Sample Trade
 
-| Chart                                                                                                          | Buy Orders                                                                                                          | Sell Orders                                                                                                          |
-| -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| ![Chart](https://user-images.githubusercontent.com/5715919/111027391-192db300-8444-11eb-8df4-91c98d0c835b.png) | ![Buy Orders](https://user-images.githubusercontent.com/5715919/111027403-36628180-8444-11eb-91dc-f3cdabc5a79e.png) | ![Sell Orders](https://user-images.githubusercontent.com/5715919/111027411-4b3f1500-8444-11eb-8525-37f02a63de25.png) |
+### Exemplo de comércio
+
+
+| Gráfico | Ordens de compra | Ordens de venda |
+| -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| ![Gráfico](https://user-images.githubusercontent.com/5715919/111027391-192db300-8444-11eb-8df4-91c98d0c835b.png) | ![Ordens de compra](https://user-images.githubusercontent.com/5715919/111027403-36628180-8444-11eb-91dc-f3cdabc5a79e.png) | ![Ordens de Venda](https://user-images.githubusercontent.com/5715919/111027411-4b3f1500-8444-11eb-8525-37f02a63de25.png) |
+
 
 ## Changes & Todo
 
-Please refer
+
+Por favor consulte
 [CHANGELOG.md](https://github.com/chrisleekr/binance-trading-bot/blob/master/CHANGELOG.md)
-to view the past changes.
+para visualizar as alterações anteriores.
 
-- [ ] Develop simple setup screen for secrets
-- [ ] Allow to execute stop-loss before buy action - [#299](https://github.com/chrisleekr/binance-trading-bot/issues/299)
-- [ ] Improve sell strategy with conditional stop price percentage based on the profit percentage - [#94](https://github.com/chrisleekr/binance-trading-bot/issues/94)
-- [ ] Add sudden drop buy strategy - [#67](https://github.com/chrisleekr/binance-trading-bot/issues/67)
-- [ ] Manage setting profiles (save/change/load?/export?) - [#151](https://github.com/chrisleekr/binance-trading-bot/issues/151)
-- [ ] Improve notifications by supporting Apprise - [#106](https://github.com/chrisleekr/binance-trading-bot/issues/106)
-- [ ] Support cool time after hitting the lowest price before buy - [#105](https://github.com/chrisleekr/binance-trading-bot/issues/105)
-- [ ] Reset global configuration to initial configuration - [#97](https://github.com/chrisleekr/binance-trading-bot/issues/97)
-- [ ] Support multilingual frontend - [#56](https://github.com/chrisleekr/binance-trading-bot/issues/56)
-- [ ] Non linear stop price and chase function - [#246](https://github.com/chrisleekr/binance-trading-bot/issues/246)
-- [ ] Support STOP-LOSS configuration per grid trade for selling - [#261](https://github.com/chrisleekr/binance-trading-bot/issues/261)
 
-## Donations
+-[ ] Desenvolver tela de configuração simples para segredos
+-[ ] Permitir executar stop-loss antes da ação de compra - [#299](https://github.com/chrisleekr/binance-trading-bot/issues/299)
+-[ ] Melhore a estratégia de venda com porcentagem de preço de parada condicional com base na porcentagem de lucro - [#94](https://github.com/chrisleekr/binance-trading-bot/issues/94)
+-[ ] Adicionar estratégia de compra de queda repentina - [#67](https://github.com/chrisleekr/binance-trading-bot/issues/67)
+-[ ] Gerenciar perfis de configuração (salvar/alterar/carregar?/exportar?) - [#151](https://github.com/chrisleekr/binance-trading-bot/issues/151)
+-[ ] Melhore as notificações com o suporte ao Apprise - [#106](https://github.com/chrisleekr/binance-trading-bot/issues/106)
+-[ ] Suporte o tempo de espera após atingir o preço mais baixo antes de comprar - [#105](https://github.com/chrisleekr/binance-trading-bot/issues/105)
+-[ ] Redefinir a configuração global para a configuração inicial - [#97](https://github.com/chrisleekr/binance-trading-bot/issues/97)
+-[ ] Suporte a frontend multilíngue - [#56](https://github.com/chrisleekr/binance-trading-bot/issues/56)
+-[ ] Preço de parada não linear e função de perseguição - [#246](https://github.com/chrisleekr/binance-trading-bot/issues/246)
+-[ ] Suporte à configuração STOP-LOSS por negociação de grade para venda - [#261](https://github.com/chrisleekr/binance-trading-bot/issues/261)
 
-If you find this project helpful, feel free to make a small
-[donation](https://github.com/chrisleekr/binance-trading-bot/blob/master/DONATIONS.md)
-to the developer.
 
-## Acknowledgments
+## Doações
 
-- [@d0x2f](https://github.com/d0x2f)
-- And many others! Thanks guys!
 
-## Contributors
+Se você achar este projeto útil, sinta-se à vontade para fazer uma pequena
+[doação](https://github.com/chrisleekr/binance-trading-bot/blob/master/DONATIONS.md)
+para o desenvolvedor.
 
-Thanks to all contributors :heart: [Click to see our heroes](https://github.com/chrisleekr/binance-trading-bot/graphs/contributors)
 
-## Disclaimer
+## Agradecimentos
 
-I give no warranty and accepts no responsibility or liability for the accuracy or the completeness of the information and materials contained in this project. Under no circumstances will I be held responsible or liable in any way for any claims, damages, losses, expenses, costs or liabilities whatsoever (including, without limitation, any direct or indirect damages for loss of profits, business interruption or loss of information) resulting from or arising directly or indirectly from your use of or inability to use this code or any code linked to it, or from your reliance on the information and material on this code, even if I have been advised of the possibility of such damages in advance.
 
-**So use it at your own risk!**
+-[@d0x2f](https://github.com/d0x2f)
+-E muitos outros! Valeu, pessoal!
+
+
+## Colaboradores
+
+
+Obrigado a todos os colaboradores :heart: [Clique para ver nossos heróis](https://github.com/chrisleekr/binance-trading-bot/graphs/contributors)
+
+
+## Isenção de responsabilidade
+
+
+Não dou nenhuma garantia e não assumo qualquer responsabilidade pela exatidão ou integralidade das informações e materiais contidos neste projeto. Em nenhuma circunstância serei responsabilizado por quaisquer reivindicações, danos, perdas, despesas, custos ou responsabilidades (incluindo, sem limitação, quaisquer danos diretos ou indiretos por lucros cessantes, interrupção de negócios ou perda de informações) resultantes ou decorrentes direta ou indiretamente do seu uso ou incapacidade de usar este código ou qualquer código vinculado a ele, ou da sua confiança nas informações e materiais contidos neste código, mesmo que eu tenha sido avisado da possibilidade de tais danos com antecedência.
+
+
+**Então use por sua conta e risco!**
+
+
+
+
+
