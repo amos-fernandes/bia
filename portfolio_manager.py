@@ -103,3 +103,7 @@ class PortfolioManager:
 
         print("\nCiclo de Rebalanceamento Concluído.")
         print("="*50 + "\n")
+
+
+
+#

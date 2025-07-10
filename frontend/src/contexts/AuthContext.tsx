@@ -1,14 +1,15 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import Cookies from 'js-cookie';
-import jwt from 'jsonwebtoken';
+import { jwtDecode } from 'jwt-decode';
 
-interface User {
+// Tipos
+type User = {
   id: string;
   email: string;
   name: string;
-}
+};
 
-interface AuthContextType {
+type AuthContextType = {
   user: User | null;
   token: string | null;
   login: (email: string, password: string) => Promise<boolean>;
@@ -16,18 +17,32 @@ interface AuthContextType {
   logout: () => void;
   isAuthenticated: boolean;
   loading: boolean;
-}
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Simulated JWT secret - In production, this would be on the server
-const JWT_SECRET = 'your-jwt-secret-key';
-
-// Simulated user database
+// Simulação de banco de dados
 const MOCK_USERS = [
   { id: '1', email: 'admin@bia.com', password: 'admin123', name: 'Administrador BIA' },
   { id: '2', email: 'trader@bia.com', password: 'trader123', name: 'Trader BIA' }
 ];
+
+// Gerar "token" fake no frontend (⚠️ apenas para ambiente de testes)
+const generateMockToken = (user: User): string => {
+  const payload = { user, exp: Date.now() + 24 * 60 * 60 * 1000 };
+  return btoa(JSON.stringify(payload)); // base64 encode
+};
+
+const parseMockToken = (token: string): { user: User } | null => {
+  try {
+    const decoded = atob(token);
+    const parsed = JSON.parse(decoded);
+    return parsed;
+  } catch (err) {
+    console.error('Erro ao decodificar token:', err);
+    return null;
+  }
+};
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -37,12 +52,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const storedToken = Cookies.get('auth-token');
     if (storedToken) {
-      try {
-        const decoded = jwt.verify(storedToken, JWT_SECRET) as any;
-        setUser(decoded.user);
+      const parsed = parseMockToken(storedToken);
+      if (parsed && parsed.user) {
+        setUser(parsed.user);
         setToken(storedToken);
-      } catch (error) {
-        console.error('Token inválido:', error);
+      } else {
         Cookies.remove('auth-token');
       }
     }
@@ -51,51 +65,42 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise(resolve => setTimeout(resolve, 1000)); // simula delay
+
       const mockUser = MOCK_USERS.find(u => u.email === email && u.password === password);
-      
-      if (!mockUser) {
-        return false;
-      }
+      if (!mockUser) return false;
 
       const userData = { id: mockUser.id, email: mockUser.email, name: mockUser.name };
-      const newToken = jwt.sign({ user: userData }, JWT_SECRET, { expiresIn: '24h' });
-      
+      const newToken = generateMockToken(userData);
+
       setUser(userData);
       setToken(newToken);
-      Cookies.set('auth-token', newToken, { expires: 1 }); // 1 day
-      
+      Cookies.set('auth-token', newToken, { expires: 1 });
+
       return true;
-    } catch (error) {
-      console.error('Erro no login:', error);
+    } catch (err) {
+      console.error('Erro no login:', err);
       return false;
     }
   };
 
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Check if user already exists
-      const existingUser = MOCK_USERS.find(u => u.email === email);
-      if (existingUser) {
-        return false;
-      }
+      await new Promise(resolve => setTimeout(resolve, 1000)); // simula delay
 
-      // In real app, would save to backend
+      const exists = MOCK_USERS.find(u => u.email === email);
+      if (exists) return false;
+
       const newUser = { id: Date.now().toString(), email, name };
-      const newToken = jwt.sign({ user: newUser }, JWT_SECRET, { expiresIn: '24h' });
-      
+      const newToken = generateMockToken(newUser);
+
       setUser(newUser);
       setToken(newToken);
       Cookies.set('auth-token', newToken, { expires: 1 });
-      
+
       return true;
-    } catch (error) {
-      console.error('Erro no registro:', error);
+    } catch (err) {
+      console.error('Erro no registro:', err);
       return false;
     }
   };
@@ -106,7 +111,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     Cookies.remove('auth-token');
   };
 
-  const value = {
+  const value: AuthContextType = {
     user,
     token,
     login,
@@ -121,7 +126,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth deve ser usado dentro de um AuthProvider');
   }
   return context;
