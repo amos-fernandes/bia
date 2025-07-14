@@ -10,7 +10,7 @@ from atcoin_service import ATCoinService
 class PortfolioManager:
     def __init__(self):
         self.binance = BinanceService()
-        self.atcoin = ATCoinService(self.binance)
+        self.atcoin = None# ATCoinService(self.binance)
 
     def rebalance_portfolio(self):
         """
@@ -19,6 +19,10 @@ class PortfolioManager:
         print("\n" + "="*50)
         print(f"INICIANDO CICLO DE REBALANCEAMENTO - {datetime.now().isoformat()}")
         print("="*50)
+
+        if not self.atcoin:
+            self.atcoin = ATCoinService(self.binance)
+
 
         # 1. Obter estado atual da conta Binance
         balances = self.binance.get_account_balance()

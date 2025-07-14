@@ -4,6 +4,14 @@ from typing import Dict, List
 
 from config import BINANCE_API_KEY, BINANCE_API_SECRET, YFINANCE_TO_BINANCE_MAP
 
+from dotenv import load_dotenv
+load_dotenv()
+
+import os
+BINANCE_API_KEY = os.getenv("BINANCE_API_KEY")
+BINANCE_API_SECRET = os.getenv("BINANCE_API_SECRET")
+
+
 class BinanceService:
     def __init__(self):
         if not BINANCE_API_KEY or not BINANCE_API_SECRET:
@@ -11,12 +19,18 @@ class BinanceService:
         self.client = ccxt.binance({
             'apiKey': BINANCE_API_KEY,
             'secret': BINANCE_API_SECRET,
+            'enableRateLimit': True,
             'options': {
                 'defaultType': 'spot', # Negociação Spot
+                'adjustForTimeDifference': True,
             },
         })
-        self.client.load_markets()
-        print("Cliente Binance inicializado e mercados carregados.")
+        try:
+            self.client.load_markets(True)
+            print("Cliente Binance inicializado e mercados carregados.")
+        except Exception as e:
+            print(f"Erro ao carregar mercados da Binance: {e}")
+
 
     def get_account_balance(self) -> Dict[str, float]:
         """Busca o saldo de todos os ativos na conta spot."""

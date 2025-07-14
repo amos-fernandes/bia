@@ -6,12 +6,13 @@ load_dotenv() # Carrega variáveis de um arquivo .env
 
 # --- Configuração da API ATCoin ---
 ATCOIN_API_URL = os.environ.get("ATCOIN_API_URL", "https://huggingface.co/spaces/amos-fernandes/cripto-model/api/v1/predict") # Mude para a URL do seu HF Space
-ATCOIN_API_KEY = os.environ.get("ATCOIN_API_KEY", "default_secret_key_for_bia")
+ATCOIN_API_KEY = os.environ.get("ATCOIN_API_KEY", "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_mais_minha_super_chave_secreta")
 
 # --- Configuração da API Binance ---
 # CUIDADO: NUNCA coloque chaves diretamente no código. Use variáveis de ambiente.
 BINANCE_API_KEY = os.environ.get("BINANCE_API_KEY")
 BINANCE_API_SECRET = os.environ.get("BINANCE_API_SECRET")
+
 
 # --- Configuração do Portfólio ---
 # Os tickers aqui devem corresponder aos usados na API ATCoin

@@ -25,6 +25,7 @@
     "dind",
     "hgetall",
     "interruptible",
+    "jsonify",
     "MACD",
     "mrkdwn",
     "redlock",
