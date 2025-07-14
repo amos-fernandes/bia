@@ -38,10 +38,11 @@ class BinanceService:
             balance = self.client.fetch_balance()
             # Filtrar apenas saldos maiores que zero e retornar dict {asset: free_amount}
             free_balances = {
-                asset: details['free']
-                for asset, details in balance['total'].items()
-                if details['free'] > 0
+                asset: amount
+                for asset, amount in balance['total'].items()
+                if amount > 0
             }
+
             return free_balances
         except Exception as e:
             print(f"Erro ao buscar saldo da Binance: {e}")
