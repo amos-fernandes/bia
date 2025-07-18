@@ -1,59 +1,47 @@
+import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Wallet, TrendingUp, TrendingDown, DollarSign, Target, BarChart3 } from "lucide-react";
 
-export default function Portfolio() {
-  const assets = [
-    {
-      symbol: "BTC",
-      name: "Bitcoin",
-      balance: "0.285",
-      value: "$12,150.00",
-      percentage: 35.2,
-      change24h: 5.24,
-      allocation: { current: 35, target: 40 }
-    },
-    {
-      symbol: "ETH",
-      name: "Ethereum",
-      balance: "4.82",
-      value: "$9,640.00",
-      percentage: 27.9,
-      change24h: -2.18,
-      allocation: { current: 28, target: 25 }
-    },
-    {
-      symbol: "ADA",
-      name: "Cardano",
-      balance: "12,450",
-      value: "$5,980.00",
-      percentage: 17.3,
-      change24h: 8.43,
-      allocation: { current: 17, target: 20 }
-    },
-    {
-      symbol: "SOL",
-      name: "Solana",
-      balance: "48.5",
-      value: "$4,365.00",
-      percentage: 12.6,
-      change24h: 12.65,
-      allocation: { current: 13, target: 10 }
-    },
-    {
-      symbol: "USDT",
-      name: "Tether",
-      balance: "2,450.32",
-      value: "$2,450.32",
-      percentage: 7.0,
-      change24h: 0.0,
-      allocation: { current: 7, target: 5 }
-    }
-  ];
+type Asset = {
+  symbol: string;
+  name: string;
+  balance: number | string;
+  value: number | string;
+  change24h: number;
+  percentage: number;
+  allocation?: {
+    current: number;
+    target: number;
+  };
+};
 
-  const totalValue = assets.reduce((sum, asset) => sum + parseFloat(asset.value.replace('$', '').replace(',', '')), 0);
+export default function Portfolio() {
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/binance/portfolio") // Ajuste para o endpoint do seu backend Flask
+      .then(res => res.json())
+      .then(data => setAssets(data))
+      .catch(() => setAssets([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const totalValue = assets.reduce((sum, asset) => {
+    const value = typeof asset.value === "string"
+      ? parseFloat(asset.value.replace('$', '').replace(',', ''))
+      : asset.value || 0;
+    return sum + value;
+  }, 0);
+
+  if (loading) return (
+    <Layout>
+      <div className="max-w-6xl mx-auto py-10 text-center text-muted-foreground">Carregando dados reais da Binance...</div>
+    </Layout>
+  );
 
   return (
     <Layout>
@@ -76,7 +64,8 @@ export default function Portfolio() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">${totalValue.toLocaleString()}</div>
-              <p className="text-xs text-success mt-1">+$1,247 (3.8%) últimas 24h</p>
+              {/* Você pode calcular o ganho/perda real se o backend retornar */}
+              <p className="text-xs text-success mt-1">Últimas 24h</p>
             </CardContent>
           </Card>
 
@@ -88,6 +77,7 @@ export default function Portfolio() {
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
+              {/* Exemplo: performance mensal, ajuste conforme backend */}
               <div className="text-2xl font-bold text-success">+18.7%</div>
               <p className="text-xs text-muted-foreground mt-1">Retorno mensal</p>
             </CardContent>
@@ -129,7 +119,7 @@ export default function Portfolio() {
                         <p className="text-sm text-muted-foreground">{asset.balance} {asset.symbol}</p>
                       </div>
                     </div>
-                    
+
                     <div className="text-right">
                       <p className="font-bold">{asset.value}</p>
                       <div className="flex items-center gap-1">
@@ -139,8 +129,8 @@ export default function Portfolio() {
                           <TrendingDown className="w-3 h-3 text-destructive" />
                         ) : null}
                         <span className={`text-xs ${
-                          asset.change24h > 0 ? 'text-success' : 
-                          asset.change24h < 0 ? 'text-destructive' : 
+                          asset.change24h > 0 ? 'text-success' :
+                          asset.change24h < 0 ? 'text-destructive' :
                           'text-muted-foreground'
                         }`}>
                           {asset.change24h > 0 ? '+' : ''}{asset.change24h}%
@@ -162,33 +152,33 @@ export default function Portfolio() {
                       <span className="text-sm font-medium">Alocação</span>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="text-xs">
-                          Atual: {asset.allocation.current}%
+                          Atual: {asset.allocation?.current ?? 0}%
                         </Badge>
                         <Badge variant="secondary" className="text-xs">
-                          Alvo: {asset.allocation.target}%
+                          Alvo: {asset.allocation?.target ?? 0}%
                         </Badge>
                       </div>
                     </div>
-                    
+
                     <div className="relative">
-                      <Progress value={asset.allocation.current} className="h-2" />
-                      <div 
+                      <Progress value={asset.allocation?.current ?? 0} className="h-2" />
+                      <div
                         className="absolute top-0 w-0.5 h-2 bg-primary"
-                        style={{ left: `${asset.allocation.target}%` }}
+                        style={{ left: `${asset.allocation?.target ?? 0}%` }}
                       />
                     </div>
-                    
+
                     <div className="flex justify-between text-xs text-muted-foreground mt-1">
                       <span>0%</span>
                       <span>50%</span>
                       <span>100%</span>
                     </div>
 
-                    {asset.allocation.current !== asset.allocation.target && (
+                    {asset.allocation?.current !== asset.allocation?.target && (
                       <div className="mt-2 flex items-center gap-2">
                         <Target className="w-3 h-3 text-warning" />
                         <span className="text-xs text-warning">
-                          {asset.allocation.current > asset.allocation.target 
+                          {asset.allocation?.current > asset.allocation?.target
                             ? `Reduzir em ${asset.allocation.current - asset.allocation.target}%`
                             : `Aumentar em ${asset.allocation.target - asset.allocation.current}%`
                           }

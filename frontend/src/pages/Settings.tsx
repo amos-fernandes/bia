@@ -32,13 +32,22 @@ export default function Settings() {
   }, []);
 
   const handleSave = async () => {
-    try {
-      await saveSettings(formData);
-      toast({ title: "Configurações salvas", description: "Suas configurações foram salvas com sucesso." });
-      setIsConnected(true);
-    } catch {
-      toast({ title: "Erro", description: "Falha ao salvar configurações." });
-    }
+    await fetch("/api/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        binanceApiKey: formData.binanceApiKey,
+        binanceApiSecret: formData.binanceApiSecret,
+        atcoinApiUrl: formData.atcoinApiUrl,
+        atcoinApiKey: formData.atcoinApiKey,
+        rebalanceInterval: "6",
+        minTradeAmount: "10",
+        autoRebalance: true,
+        notifications: true
+        // outros campos...
+      })
+    });
+    // feedback ao usuário...
   };
 
   const handleTestConnections = async () => {
@@ -53,5 +62,5 @@ export default function Settings() {
     }
   };
 
-  // ...restante do JSX igual ao seu Settings.tsx, mas usando handleSave e handleTestConnections...
+
 }
