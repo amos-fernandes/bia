@@ -24,8 +24,13 @@ export default function Settings() {
   useEffect(() => {
     getConnectionStatus()
       .then((data) => {
-        setIsConnected(data.isConnected); // Use the correct property name from ConnectionStatusResponse
-        setFormData((prev) => ({ ...prev, ...data.settings }));
+        setIsConnected(data.status === "connected"); // Convert string status to boolean
+        // If settings are returned as part of the response, use the correct property name.
+        // For example, if the API returns settings as part of the response object:
+        // setFormData((prev) => ({ ...prev, ...data }));
+        // Otherwise, just keep the previous formData.
+        // setFormData((prev) => ({ ...prev }));
+        setFormData((prev) => ({ ...prev, ...data }));
       })
       .catch(() => setIsConnected(false))
       .finally(() => setLoading(false));
@@ -54,7 +59,7 @@ export default function Settings() {
     toast({ title: "Testando conexões...", description: "Verificando conectividade com APIs." });
     try {
       const result = await testConnections();
-      setIsConnected(result.connected);
+      setIsConnected(result.status === "connected");
       toast({ title: "Conexões testadas", description: "Todas as APIs estão respondendo corretamente." });
     } catch {
       setIsConnected(false);
