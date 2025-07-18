@@ -24,9 +24,8 @@ export default function Settings() {
   useEffect(() => {
     getConnectionStatus()
       .then((data) => {
-        setIsConnected(data.connected);
-        setFormData((prev) => ({ ...prev, ...data.settings }));
-      })
+        setIsConnected(data.isConnected); // Use the correct property name from ConnectionStatusResponse
+        setFormData((prev) =      })
       .catch(() => setIsConnected(false))
       .finally(() => setLoading(false));
   }, []);

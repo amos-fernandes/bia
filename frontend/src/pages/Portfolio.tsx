@@ -8,10 +8,10 @@ import { Wallet, TrendingUp, TrendingDown, DollarSign, Target, BarChart3 } from 
 type Asset = {
   symbol: string;
   name: string;
-  balance: number | string;
-  value: number | string;
-  change24h: number;
+  balance: number;
+  value: number;
   percentage: number;
+  change24h: number;
   allocation?: {
     current: number;
     target: number;
@@ -21,21 +21,40 @@ type Asset = {
 export default function Portfolio() {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalValue, setTotalValue] = useState(0);
 
   useEffect(() => {
-    fetch("/api/binance/portfolio") // Ajuste para o endpoint do seu backend Flask
+    fetch("/api/portfolio/balance")
       .then(res => res.json())
-      .then(data => setAssets(data))
+      .then(data => {
+        if (data.error) return setAssets([]);
+        setTotalValue(data.total_value_usd);
+
+        // Transformar allocations em array para o frontend
+        const allocs = data.allocations || {};
+        type AllocationInfo = {
+          quantity: number;
+          value_usd: number;
+          // Add other fields if needed
+        };
+
+        const arr: Asset[] = Object.entries(allocs).map(([symbol, info]: [string, AllocationInfo]) => ({
+          symbol,
+          name: symbol, // Se quiser, mapeie para nome real
+          balance: info.quantity,
+          value: info.value_usd,
+          percentage: totalValue > 0 ? +(info.value_usd * 100 / data.total_value_usd).toFixed(2) : 0,
+          change24h: 0, // Implemente se o backend retornar
+          allocation: {
+            current: totalValue > 0 ? +(info.value_usd * 100 / data.total_value_usd).toFixed(2) : 0,
+            target: 0 // Implemente se o backend retornar
+          }
+        }));
+        setAssets(arr);
+      })
       .catch(() => setAssets([]))
       .finally(() => setLoading(false));
-  }, []);
-
-  const totalValue = assets.reduce((sum, asset) => {
-    const value = typeof asset.value === "string"
-      ? parseFloat(asset.value.replace('$', '').replace(',', ''))
-      : asset.value || 0;
-    return sum + value;
-  }, 0);
+  }, [totalValue]);
 
   if (loading) return (
     <Layout>
@@ -64,7 +83,6 @@ export default function Portfolio() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">${totalValue.toLocaleString()}</div>
-              {/* Você pode calcular o ganho/perda real se o backend retornar */}
               <p className="text-xs text-success mt-1">Últimas 24h</p>
             </CardContent>
           </Card>
@@ -77,8 +95,7 @@ export default function Portfolio() {
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              {/* Exemplo: performance mensal, ajuste conforme backend */}
-              <div className="text-2xl font-bold text-success">+18.7%</div>
+              <div className="text-2xl font-bold text-success">+0%</div>
               <p className="text-xs text-muted-foreground mt-1">Retorno mensal</p>
             </CardContent>
           </Card>
@@ -121,7 +138,7 @@ export default function Portfolio() {
                     </div>
 
                     <div className="text-right">
-                      <p className="font-bold">{asset.value}</p>
+                      <p className="font-bold">${asset.value.toLocaleString()}</p>
                       <div className="flex items-center gap-1">
                         {asset.change24h > 0 ? (
                           <TrendingUp className="w-3 h-3 text-success" />
