@@ -1,4 +1,4 @@
-const API_BASE_URL = "/api"; // ajuste se necessário
+const API_BASE_URL = "http://192.168.1.47:5000/api"; // ajuste se necessário
 
 export async function getConnectionStatus() {
   const res = await fetch(`${API_BASE_URL}/status`);
