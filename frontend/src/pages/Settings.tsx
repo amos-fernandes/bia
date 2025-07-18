@@ -25,7 +25,8 @@ export default function Settings() {
     getConnectionStatus()
       .then((data) => {
         setIsConnected(data.isConnected); // Use the correct property name from ConnectionStatusResponse
-        setFormData((prev) =      })
+        setFormData((prev) => ({ ...prev, ...data.settings }));
+      })
       .catch(() => setIsConnected(false))
       .finally(() => setLoading(false));
   }, []);
