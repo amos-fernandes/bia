@@ -1,14 +1,14 @@
 import json
 import requests
 from typing import Dict, List
-from config import ATCOIN_API_URL, ATCOIN_API_KEY
+from config import ATCOIN_API_URL, ATCOIN_API_KEY, BINANCE_API_KEY, BINANCE_API_SECRET
 
 
 from binance.client import Client
 
 
-api_key="At0R6ebAME5rvFAFv2vfdniyamxdjIN3ouw9NcVU0jBuejrMRlpt2070wKwNGOil"
-api_secret="KwXApzKS3L0pbmrjT93CuDPgQ63pOrKi49TfSnU9eCBrrFkfi07362PF8Ryx7rF3"
+api_key=BINANCE_API_KEY
+api_secret=BINANCE_API_SECRET
 
 client = Client(api_key, api_secret)
 
