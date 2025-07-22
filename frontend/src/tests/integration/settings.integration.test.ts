@@ -7,7 +7,8 @@ describe("Integração Settings API", () => {
   });
 
   it("deve salvar configurações", async () => {
-    const resp = await saveSettings({ atcoinApiUrl: "http://localhost:5000", atcoinApiKey: "test" });
+    const resp = await saveSettings({ atcoinApiUrl: "http://localhost:5000",
+    atcoinApiKey: "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_mais_minha_super_chave_secreta" });
     expect(resp).toHaveProperty("success");
   });
 

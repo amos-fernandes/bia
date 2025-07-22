@@ -53,6 +53,7 @@ class PortfolioManager:
         print("\n--- Consultando a IA ATCoin para nova alocação... ---")
         target_allocation_weights = self.atcoin.get_portfolio_allocation(PORTFOLIO_ASSETS)
         if not target_allocation_weights:
+            print(PORTFOLIO_ASSETS)
             print("Não foi possível obter a alocação da IA. Abortando ciclo.")
             return
 

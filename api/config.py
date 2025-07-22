@@ -10,8 +10,8 @@ ATCOIN_API_KEY = os.environ.get("ATCOIN_API_KEY", "hf_oLfdAdkXGkIgmQuaRwsMWyKJip
 
 # --- Configuração da API Binance ---
 # CUIDADO: NUNCA coloque chaves diretamente no código. Use variáveis de ambiente.
-BINANCE_API_KEY = os.environ.get("BINANCE_API_KEY")
-BINANCE_API_SECRET = os.environ.get("BINANCE_API_SECRET")
+BINANCE_API_KEY = os.environ.get("BINANCE_API_KEY","At0R6ebAME5rvFAFv2vfdniyamxdjIN3ouw9NcVU0jBuejrMRlpt2070wKwNGOil")
+BINANCE_API_SECRET = os.environ.get("BINANCE_API_SECRET", "KwXApzKS3L0pbmrjT93CuDPgQ63pOrKi49TfSnU9eCBrrFkfi07362PF8Ryx7rF3" )
 
 
 # --- Configuração do Portfólio ---
