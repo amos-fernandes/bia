@@ -14,6 +14,8 @@ RUN npm install
 
 COPY . .
 
+ENV PORT=8080
+
 ARG PACKAGE_VERSION=untagged
 ENV PACKAGE_VERSION=${PACKAGE_VERSION}
 LABEL com.chrisleekr.binance-trading-bot.package-version=${PACKAGE_VERSION}
@@ -28,6 +30,7 @@ LABEL com.chrisleekr.binance-trading-bot.node-env=${NODE_ENV}
 
 ARG PORT=80
 ENV PORT=${PORT}
+ENV PORT=8080
 
 ENTRYPOINT [ "docker-entrypoint.sh" ]
 
@@ -63,9 +66,10 @@ LABEL com.chrisleekr.binance-trading-bot.node-env=${NODE_ENV}
 
 ARG PORT=80
 ENV PORT=${PORT}
+ENV PORT=8080
 
 # Add configuration files
-COPY image-files/ /
+COPY image-files/usr/local/bin /
 
 WORKDIR /srv
 
