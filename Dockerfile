@@ -81,4 +81,5 @@ RUN cp /srv/public/index.html /srv/public/index.dev.html && \
 
 ENTRYPOINT [ "docker-entrypoint.sh" ]
 
-CMD [ "npm", "start"]
+
+CMD ["npm", "start", "--", "--port=8080"]
