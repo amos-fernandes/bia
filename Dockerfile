@@ -4,7 +4,7 @@ FROM node:14-alpine AS dev-stage
 RUN apk add --no-cache make gcc g++ py-pip mongodb-tools redis
 
 # Add configuration files
-COPY image-files/ /
+COPY image-files/usr/local/bin /
 
 WORKDIR /srv
 
