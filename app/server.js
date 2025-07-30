@@ -7,9 +7,7 @@ const { runErrorHandler } = require('./error-handler');
 
 global.appRoot = path.resolve(__dirname);
 
-const express = require('express');
-const app = express();
-const PORT = process.env.PORT || 8080;
+
 
 (async () => {
   const logger = rootLogger.child({
