@@ -13,6 +13,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
+FROM chrisleekr/binance-trading-bot:latest
 
 ENV PORT=8080
 
@@ -55,6 +56,7 @@ RUN apk add --no-cache mongodb-tools redis
 ARG PACKAGE_VERSION=untagged
 ENV PACKAGE_VERSION=${PACKAGE_VERSION}
 LABEL com.chrisleekr.binance-trading-bot.package-version=${PACKAGE_VERSION}
+FROM chrisleekr/binance-trading-bot:latest
 
 ARG GIT_HASH=unspecified
 ENV GIT_HASH=${GIT_HASH}
